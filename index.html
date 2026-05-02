@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NorthStar Advisors — CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dim: #7A6230;
+    --navy: #0B1220;
+    --navy-mid: #131E35;
+    --navy-light: #1C2B47;
+    --navy-border: #243450;
+    --white: #F0EDE8;
+    --white-dim: #9A9690;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --amber: #F39C12;
+    --blue: #3498DB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--navy-mid);
+    border-bottom: 1px solid var(--navy-border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--gold);
+  }
+  .logo span { color: var(--white); }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .date-display {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--white-dim);
+  }
+
+  /* NAV TABS */
+  nav {
+    background: var(--navy-mid);
+    border-bottom: 1px solid var(--navy-border);
+    padding: 0 32px;
+    display: flex;
+    gap: 4px;
+  }
+  .tab {
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--white); }
+  .tab.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* MAIN LAYOUT */
+  main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--navy-mid);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--navy-light);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  /* FORM ELEMENTS */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  input, select, textarea {
+    background: var(--navy-light);
+    border: 1px solid var(--navy-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+  }
+  select option { background: var(--navy-mid); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--navy-border);
+    color: var(--white-dim);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--red);
+    color: var(--red);
+  }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-green { background: rgba(46,204,113,0.15); color: var(--green); }
+  .badge-amber { background: rgba(243,156,18,0.15); color: var(--amber); }
+  .badge-red { background: rgba(231,76,60,0.15); color: var(--red); }
+  .badge-blue { background: rgba(52,152,219,0.15); color: var(--blue); }
+  .badge-gold { background: rgba(201,168,76,0.15); color: var(--gold); }
+
+  /* CLIENT TABLE */
+  .client-table { width: 100%; border-collapse: collapse; }
+  .client-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--navy-border);
+  }
+  .client-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(36,52,80,0.5);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+  .client-table tr:hover td { background: var(--navy-light); }
+  .client-name { font-weight: 600; color: var(--white); }
+  .client-addr { font-size: 11px; color: var(--white-dim); margin-top: 2px; }
+
+  /* SCORE DISPLAY */
+  .scores { display: flex; gap: 8px; }
+  .score-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--navy-light);
+    border: 1px solid var(--navy-border);
+  }
+  .score-chip span { color: var(--white-dim); font-size: 10px; }
+
+  /* ALERT ITEMS */
+  .alert-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border-left: 3px solid;
+  }
+  .alert-item.urgent {
+    background: rgba(231,76,60,0.08);
+    border-left-color: var(--red);
+  }
+  .alert-item.upcoming {
+    background: rgba(243,156,18,0.08);
+    border-left-color: var(--amber);
+  }
+  .alert-item.info {
+    background: rgba(52,152,219,0.08);
+    border-left-color: var(--blue);
+  }
+  .alert-icon { font-size: 18px; }
+  .alert-text { flex: 1; }
+  .alert-text strong { display: block; font-size: 13px; font-weight: 600; }
+  .alert-text small { font-size: 11px; color: var(--white-dim); }
+  .alert-days {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* SECTION DIVIDER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--white);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(11,18,32,0.85);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--navy-mid);
+    border: 1px solid var(--navy-border);
+    border-radius: 12px;
+    padding: 32px;
+    width: 90%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+
+  /* SEARCH */
+  .search-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .search-bar input { flex: 1; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--navy-border);
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: var(--navy-light);
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 16px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--navy);
+  }
+  .timeline-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+
+  /* LETTER GENERATOR */
+  .letter-preview {
+    background: var(--navy-light);
+    border: 1px solid var(--navy-border);
+    border-radius: 6px;
+    padding: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    color: var(--white);
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--navy-border);
+    margin: 20px 0;
+  }
+
+  /* ROUND SELECTOR */
+  .round-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .round-pill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--navy-border);
+    color: var(--white-dim);
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .round-pill:hover { border-color: var(--gold); color: var(--gold); }
+  .round-pill.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--navy-mid);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gold);
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* UTILITY */
+  .flex { display: flex; }
+  .gap-12 { gap: 12px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-8 { margin-top: 8px; }
+  .text-gold { color: var(--gold); }
+  .text-dim { color: var(--white-dim); font-size: 12px; }
+  .text-mono { font-family: 'DM Mono', monospace; }
+
+  @media (max-width: 768px) {
+    main { padding: 16px; }
+    header { padding: 0 16px; }
+    nav { padding: 0 16px; overflow-x: auto; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid.three { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">NorthStar <span>Advisors</span></div>
+  <div class="header-right">
+    <div class="date-display" id="headerDate"></div>
+  </div>
+</header>
+
+<nav>
+  <div class="tab active" onclick="showPanel('dashboard')">Dashboard</div>
+  <div class="tab" onclick="showPanel('clients')">Clients</div>
+  <div class="tab" onclick="showPanel('intake')">New Client</div>
+  <div class="tab" onclick="showPanel('letters')">Letters</div>
+  <div class="tab" onclick="showPanel('alerts')">Alerts</div>
+</nav>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="stats-row" id="statsRow"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card">
+        <div class="card-title">⚡ Action Required</div>
+        <div id="urgentAlerts"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📅 Upcoming (Next 14 Days)</div>
+        <div id="upcomingAlerts"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0">
+      <div class="card-title">🌟 Active Roster</div>
+      <table class="client-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Scores</th>
+            <th>Round</th>
+            <th>Status</th>
+            <th>Next Action</th>
+          </tr>
+        </thead>
+        <tbody id="dashboardRoster"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CLIENTS -->
+  <div class="panel" id="panel-clients">
+    <div class="section-header">
+      <div class="section-title">Client Roster</div>
+      <button class="btn btn-gold" onclick="showPanel('intake')">+ New Client</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" placeholder="Search clients..." id="clientSearch" oninput="filterClients()"/>
+    </div>
+    <div class="card" style="padding:0">
+      <table class="client-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Scores</th>
+            <th>Goal</th>
+            <th>Round</th>
+            <th>Mailed</th>
+            <th>Next Due</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="clientRoster"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- INTAKE -->
+  <div class="panel" id="panel-intake">
+    <div class="section-header">
+      <div class="section-title">New Client Intake</div>
+    </div>
+    <div class="card">
+      <div class="card-title">👤 Client Information</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="in_first" placeholder="First name"/>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="in_last" placeholder="Last name"/>
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" id="in_dob"/>
+        </div>
+        <div class="form-group">
+          <label>SSN Last 4</label>
+          <input type="text" id="in_ssn" placeholder="XXXX" maxlength="4"/>
+        </div>
+        <div class="form-group full">
+          <label>Mailing Address</label>
+          <input type="text" id="in_addr" placeholder="Street address, City, State ZIP"/>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="in_phone" placeholder="(XXX) XXX-XXXX"/>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="in_email" placeholder="email@example.com"/>
+        </div>
+        <div class="form-group">
+          <label>Credit Goal</label>
+          <select id="in_goal">
+            <option value="">Select goal...</option>
+            <option>Mortgage</option>
+            <option>Auto Loan</option>
+            <option>General Improvement</option>
+            <option>Business Funding</option>
+            <option>Rental Application</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Payment Status</label>
+          <select id="in_payment">
+            <option value="PAID">Paid</option>
+            <option value="PENDING">Pending</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Credit Scores</div>
+      <div class="form-grid three">
+        <div class="form-group">
+          <label>Equifax Score</label>
+          <input type="number" id="in_eq" placeholder="000"/>
+        </div>
+        <div class="form-group">
+          <label>Experian Score</label>
+          <input type="number" id="in_ex" placeholder="000"/>
+        </div>
+        <div class="form-group">
+          <label>TransUnion Score</label>
+          <input type="number" id="in_tu" placeholder="000"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚠️ Key Accounts & Notes</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Negative Accounts (one per line)</label>
+          <textarea id="in_negatives" placeholder="e.g. GM Financial CO $58,243&#10;Child Support TU-only $2,106&#10;Ally xxxx4891 lates"></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Protect Accounts (do NOT dispute)</label>
+          <textarea id="in_protect" placeholder="e.g. Capital One xxxx1862&#10;Rental Kharma (oldest account)"></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Additional Notes</label>
+          <textarea id="in_notes" placeholder="BK history, fraud alerts, special circumstances..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 Round 1 Mail Date</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>R0 (Personal Info) Mail Date</label>
+          <input type="date" id="in_r0date"/>
+        </div>
+        <div class="form-group">
+          <label>R1 Mail Date</label>
+          <input type="date" id="in_r1date"/>
+        </div>
+      </div>
+      <p class="text-dim mt-8">📌 R0 triggers a 10-day follow-up. R1 triggers a 35-day re-pull alert.</p>
+    </div>
+
+    <div class="flex gap-12">
+      <button class="btn btn-gold" onclick="addClient()">✅ Add Client to Roster</button>
+      <button class="btn btn-outline" onclick="clearIntake()">Clear Form</button>
+    </div>
+  </div>
+
+  <!-- LETTERS -->
+  <div class="panel" id="panel-letters">
+    <div class="section-header">
+      <div class="section-title">Letter Generator</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚙️ Configure Letter</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Select Client</label>
+          <select id="lt_client" onchange="populateLetterClient()">
+            <option value="">Choose client...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bureau</label>
+          <select id="lt_bureau">
+            <option value="Equifax">Equifax</option>
+            <option value="Experian">Experian</option>
+            <option value="TransUnion">TransUnion</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-16">
+        <label style="display:block;margin-bottom:8px;font-size:11px;font-weight:600;color:var(--white-dim);text-transform:uppercase;letter-spacing:1px;">Letter Type</label>
+        <div class="round-pills">
+          <button class="round-pill active" onclick="selectLetterType('R0', this)">R0 — Personal Info</button>
+          <button class="round-pill" onclick="selectLetterType('R1', this)">R1 — Round 1 Dispute</button>
+          <button class="round-pill" onclick="selectLetterType('R2-MOV', this)">R2 — Method of Verification</button>
+          <button class="round-pill" onclick="selectLetterType('R3-PreLit', this)">R3 — Pre-Litigation</button>
+        </div>
+      </div>
+      <div class="mt-16 form-grid">
+        <div class="form-group full">
+          <label>Specific Account / Dispute Item (optional)</label>
+          <input type="text" id="lt_account" placeholder="e.g. GM Financial CO $58,243 — missing DOFD, status conflict"/>
+        </div>
+      </div>
+      <div class="mt-16">
+        <button class="btn btn-gold" onclick="generateLetter()">Generate Letter</button>
+      </div>
+    </div>
+    <div class="card" id="letterOutputCard" style="display:none">
+      <div class="card-title">📄 Generated Letter</div>
+      <div class="letter-preview" id="letterOutput"></div>
+      <div class="flex gap-12 mt-16">
+        <button class="btn btn-gold btn-sm" onclick="copyLetter()">📋 Copy Letter</button>
+        <button class="btn btn-outline btn-sm" onclick="printLetter()">🖨️ Print</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="panel" id="panel-alerts">
+    <div class="section-header">
+      <div class="section-title">All Alerts & Deadlines</div>
+    </div>
+    <div id="allAlerts"></div>
+  </div>
+
+</main>
+
+<!-- CLIENT DETAIL MODAL -->
+<div class="modal-overlay" id="clientModal">
+  <div class="modal">
+    <div class="modal-title" id="modalClientName">Client Name</div>
+    <div id="modalContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      <button class="btn btn-gold" onclick="openLetterForClient()">Generate Letter</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA STORE
+// ============================================================
+let clients = JSON.parse(localStorage.getItem('ns_clients') || '[]');
+let currentLetterType = 'R0';
+let activeClientId = null;
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function saveClients() {
+  localStorage.setItem('ns_clients', JSON.stringify(clients));
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function addDays(dateStr, days) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+function daysDiff(dateStr) {
+  if (!dateStr) return null;
+  const now = new Date(); now.setHours(0,0,0,0);
+  const target = new Date(dateStr);
+  return Math.round((target - now) / 86400000);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelector(`[onclick="showPanel('${name}')"]`).classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'clients') renderClientRoster();
+  if (name === 'alerts') renderAllAlerts();
+  if (name === 'letters') populateLetterDropdown();
+}
+
+// ============================================================
+// HEADER DATE
+// ============================================================
+function updateHeaderDate() {
+  const now = new Date();
+  document.getElementById('headerDate').textContent =
+    now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+updateHeaderDate();
+
+// ============================================================
+// ROUND LOGIC
+// ============================================================
+function getRound(client) {
+  if (client.r3date) return 'R3';
+  if (client.r2date) return 'R2';
+  if (client.r1date) return 'R1';
+  if (client.r0date) return 'R0';
+  return 'Intake';
+}
+
+function getNextActionDate(client) {
+  const round = getRound(client);
+  if (round === 'R0' && client.r0date) return { label: 'R1 Send', date: addDays(client.r0date, 10) };
+  if (round === 'R1' && client.r1date) return { label: 'Re-pull Credit', date: addDays(client.r1date, 35) };
+  if (round === 'R2' && client.r2date) return { label: 'Re-pull Credit', date: addDays(client.r2date, 35) };
+  if (round === 'R3' && client.r3date) return { label: 'Review / Pre-Lit', date: addDays(client.r3date, 35) };
+  return null;
+}
+
+function getStatusBadge(client) {
+  const next = getNextActionDate(client);
+  if (!next) return '<span class="badge badge-blue">Intake</span>';
+  const diff = daysDiff(next.date);
+  if (diff < 0) return '<span class="badge badge-red">Overdue</span>';
+  if (diff <= 5) return '<span class="badge badge-amber">Due Soon</span>';
+  return '<span class="badge badge-green">On Track</span>';
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  // Stats
+  const total = clients.length;
+  const paid = clients.filter(c => c.payment === 'PAID').length;
+  const overdue = clients.filter(c => {
+    const n = getNextActionDate(c);
+    return n && daysDiff(n.date) < 0;
+  }).length;
+  const dueSoon = clients.filter(c => {
+    const n = getNextActionDate(c);
+    if (!n) return false;
+    const d = daysDiff(n.date);
+    return d >= 0 && d <= 7;
+  }).length;
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Active Clients</div></div>
+    <div class="stat-card"><div class="stat-value">${paid}</div><div class="stat-label">Paid</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--red)">${overdue}</div><div class="stat-label">Overdue</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--amber)">${dueSoon}</div><div class="stat-label">Due This Week</div></div>
+  `;
+
+  // Urgent alerts
+  const urgent = clients.filter(c => {
+    const n = getNextActionDate(c);
+    return n && daysDiff(n.date) < 0;
+  });
+  document.getElementById('urgentAlerts').innerHTML = urgent.length === 0
+    ? '<p class="text-dim">No overdue items ✅</p>'
+    : urgent.map(c => {
+        const n = getNextActionDate(c);
+        const diff = daysDiff(n.date);
+        return `<div class="alert-item urgent">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-text">
+            <strong>${c.first} ${c.last}</strong>
+            <small>${n.label}</small>
+          </div>
+          <div class="alert-days" style="color:var(--red)">${Math.abs(diff)}d overdue</div>
+        </div>`;
+      }).join('');
+
+  // Upcoming
+  const upcoming = clients.filter(c => {
+    const n = getNextActionDate(c);
+    if (!n) return false;
+    const d = daysDiff(n.date);
+    return d >= 0 && d <= 14;
+  }).sort((a,b) => {
+    const na = getNextActionDate(a), nb = getNextActionDate(b);
+    return new Date(na.date) - new Date(nb.date);
+  });
+  document.getElementById('upcomingAlerts').innerHTML = upcoming.length === 0
+    ? '<p class="text-dim">Nothing due in the next 14 days</p>'
+    : upcoming.map(c => {
+        const n = getNextActionDate(c);
+        const diff = daysDiff(n.date);
+        return `<div class="alert-item ${diff <= 3 ? 'urgent' : 'upcoming'}">
+          <div class="alert-icon">${diff <= 3 ? '⚠️' : '📅'}</div>
+          <div class="alert-text">
+            <strong>${c.first} ${c.last}</strong>
+            <small>${n.label} — ${formatDate(n.date)}</small>
+          </div>
+          <div class="alert-days" style="color:${diff<=3?'var(--amber)':'var(--blue)'}">${diff}d</div>
+        </div>`;
+      }).join('');
+
+  // Roster table
+  document.getElementById('dashboardRoster').innerHTML = clients.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--white-dim)">No clients yet — add your first client</td></tr>'
+    : clients.map(c => {
+        const n = getNextActionDate(c);
+        return `<tr onclick="openClient('${c.id}')" style="cursor:pointer">
+          <td><div class="client-name">${c.first} ${c.last}</div><div class="client-addr">${c.addr || ''}</div></td>
+          <td><div class="scores">
+            <div class="score-chip"><span>EQ </span>${c.eq||'—'}</div>
+            <div class="score-chip"><span>EX </span>${c.ex||'—'}</div>
+            <div class="score-chip"><span>TU </span>${c.tu||'—'}</div>
+          </div></td>
+          <td><span class="badge badge-gold">${getRound(c)}</span></td>
+          <td>${getStatusBadge(c)}</td>
+          <td style="font-size:12px;color:var(--white-dim)">${n ? n.label + ' — ' + formatDate(n.date) : '—'}</td>
+        </tr>`;
+      }).join('');
+}
+
+// ============================================================
+// CLIENT ROSTER
+// ============================================================
+function renderClientRoster(filter='') {
+  const filtered = clients.filter(c =>
+    `${c.first} ${c.last}`.toLowerCase().includes(filter.toLowerCase())
+  );
+  document.getElementById('clientRoster').innerHTML = filtered.length === 0
+    ? '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--white-dim)">No clients found</td></tr>'
+    : filtered.map(c => {
+        const n = getNextActionDate(c);
+        return `<tr onclick="openClient('${c.id}')" style="cursor:pointer">
+          <td><div class="client-name">${c.first} ${c.last}</div><div class="client-addr">${c.addr||''}</div></td>
+          <td><div class="scores">
+            <div class="score-chip"><span>EQ </span>${c.eq||'—'}</div>
+            <div class="score-chip"><span>EX </span>${c.ex||'—'}</div>
+            <div class="score-chip"><span>TU </span>${c.tu||'—'}</div>
+          </div></td>
+          <td style="font-size:12px">${c.goal||'—'}</td>
+          <td><span class="badge badge-gold">${getRound(c)}</span></td>
+          <td style="font-size:12px">${formatDate(c.r1date)}</td>
+          <td style="font-size:12px;color:${n&&daysDiff(n.date)<0?'var(--red)':'var(--white-dim)'}">${n?formatDate(n.date):'—'}</td>
+          <td>${getStatusBadge(c)}</td>
+          <td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();deleteClient('${c.id}')">Delete</button></td>
+        </tr>`;
+      }).join('');
+}
+
+function filterClients() {
+  renderClientRoster(document.getElementById('clientSearch').value);
+}
+
+// ============================================================
+// ADD CLIENT
+// ============================================================
+function addClient() {
+  const first = document.getElementById('in_first').value.trim();
+  const last = document.getElementById('in_last').value.trim();
+  if (!first || !last) { showToast('⚠️ Name is required'); return; }
+
+  const client = {
+    id: uid(),
+    first, last,
+    dob: document.getElementById('in_dob').value,
+    ssn: document.getElementById('in_ssn').value,
+    addr: document.getElementById('in_addr').value,
+    phone: document.getElementById('in_phone').value,
+    email: document.getElementById('in_email').value,
+    goal: document.getElementById('in_goal').value,
+    payment: document.getElementById('in_payment').value,
+    eq: document.getElementById('in_eq').value,
+    ex: document.getElementById('in_ex').value,
+    tu: document.getElementById('in_tu').value,
+    negatives: document.getElementById('in_negatives').value,
+    protect: document.getElementById('in_protect').value,
+    notes: document.getElementById('in_notes').value,
+    r0date: document.getElementById('in_r0date').value,
+    r1date: document.getElementById('in_r1date').value,
+    r2date: '',
+    r3date: '',
+    addedDate: today(),
+    history: [`${today()} — Client added to NorthStar roster`]
+  };
+
+  if (client.r0date) client.history.push(`${client.r0date} — R0 personal info letter mailed`);
+  if (client.r1date) client.history.push(`${client.r1date} — R1 dispute letters mailed`);
+
+  clients.push(client);
+  saveClients();
+  showToast(`✅ ${first} ${last} added to roster`);
+  clearIntake();
+  showPanel('clients');
+}
+
+function clearIntake() {
+  ['in_first','in_last','in_dob','in_ssn','in_addr','in_phone','in_email',
+   'in_goal','in_eq','in_ex','in_tu','in_negatives','in_protect','in_notes',
+   'in_r0date','in_r1date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('in_payment').value = 'PAID';
+}
+
+function deleteClient(id) {
+  if (!confirm('Delete this client? This cannot be undone.')) return;
+  clients = clients.filter(c => c.id !== id);
+  saveClients();
+  renderClientRoster(document.getElementById('clientSearch').value);
+  showToast('Client removed');
+}
+
+// ============================================================
+// CLIENT MODAL
+// ============================================================
+function openClient(id) {
+  const c = clients.find(x => x.id === id);
+  if (!c) return;
+  activeClientId = id;
+  document.getElementById('modalClientName').textContent = `${c.first} ${c.last}`;
+
+  const n = getNextActionDate(c);
+
+  document.getElementById('modalContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div>
+        <div class="text-dim">Address</div>
+        <div style="font-size:13px;margin-top:4px">${c.addr||'—'}</div>
+      </div>
+      <div>
+        <div class="text-dim">Goal</div>
+        <div style="font-size:13px;margin-top:4px">${c.goal||'—'}</div>
+      </div>
+      <div>
+        <div class="text-dim">DOB</div>
+        <div class="text-mono" style="font-size:13px;margin-top:4px">${c.dob||'—'}</div>
+      </div>
+      <div>
+        <div class="text-dim">SSN Last 4</div>
+        <div class="text-mono" style="font-size:13px;margin-top:4px">xxx-xx-${c.ssn||'????'}</div>
+      </div>
+    </div>
+    <div class="scores" style="margin-bottom:16px">
+      <div class="score-chip" style="font-size:14px"><span>EQ </span>${c.eq||'—'}</div>
+      <div class="score-chip" style="font-size:14px"><span>EX </span>${c.ex||'—'}</div>
+      <div class="score-chip" style="font-size:14px"><span>TU </span>${c.tu||'—'}</div>
+    </div>
+    ${n ? `<div class="alert-item ${daysDiff(n.date)<0?'urgent':'upcoming'}" style="margin-bottom:16px">
+      <div class="alert-icon">${daysDiff(n.date)<0?'🔴':'📅'}</div>
+      <div class="alert-text">
+        <strong>${n.label}</strong>
+        <small>${formatDate(n.date)} (${daysDiff(n.date)} days)</small>
+      </div>
+    </div>` : ''}
+    ${c.negatives ? `<div style="margin-bottom:12px"><div class="text-dim" style="margin-bottom:6px">Negative Accounts</div>
+      <div style="font-size:12px;background:var(--navy-light);padding:10px 14px;border-radius:6px;white-space:pre-wrap">${c.negatives}</div></div>` : ''}
+    ${c.protect ? `<div style="margin-bottom:12px"><div class="text-dim" style="margin-bottom:6px">🛡️ Protect</div>
+      <div style="font-size:12px;background:var(--navy-light);padding:10px 14px;border-radius:6px;white-space:pre-wrap">${c.protect}</div></div>` : ''}
+    ${c.notes ? `<div style="margin-bottom:12px"><div class="text-dim" style="margin-bottom:6px">Notes</div>
+      <div style="font-size:12px;background:var(--navy-light);padding:10px 14px;border-radius:6px">${c.notes}</div></div>` : ''}
+    <hr class="divider"/>
+    <div class="text-dim" style="margin-bottom:8px">Round History</div>
+    <div class="timeline">
+      ${(c.history||[]).map(h => `<div class="timeline-item"><div class="timeline-date">${h.split('—')[0].trim()}</div>${h.split('—')[1]||''}</div>`).join('')}
+    </div>
+    <hr class="divider"/>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn btn-outline btn-sm" onclick="updateRound('${id}','r2date')">✅ Mark R2 Sent</button>
+      <button class="btn btn-outline btn-sm" onclick="updateRound('${id}','r3date')">✅ Mark R3 Sent</button>
+      <button class="btn btn-outline btn-sm" onclick="updateScores('${id}')">📊 Update Scores</button>
+    </div>
+  `;
+  document.getElementById('clientModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('clientModal').classList.remove('open');
+  activeClientId = null;
+}
+
+function updateRound(id, field) {
+  const c = clients.find(x => x.id === id);
+  if (!c) return;
+  const d = prompt(`Enter mail date for ${field.replace('date','').toUpperCase()} (YYYY-MM-DD):`, today());
+  if (!d) return;
+  c[field] = d;
+  const label = field.replace('date','').toUpperCase();
+  c.history = c.history || [];
+  c.history.push(`${d} — ${label} dispute letters mailed`);
+  saveClients();
+  closeModal();
+  showToast(`${label} date saved`);
+}
+
+function updateScores(id) {
+  const c = clients.find(x => x.id === id);
+  if (!c) return;
+  const eq = prompt('New Equifax score:', c.eq);
+  const ex = prompt('New Experian score:', c.ex);
+  const tu = prompt('New TransUnion score:', c.tu);
+  if (eq) c.eq = eq;
+  if (ex) c.ex = ex;
+  if (tu) c.tu = tu;
+  c.history = c.history || [];
+  c.history.push(`${today()} — Scores updated: EQ:${c.eq} EX:${c.ex} TU:${c.tu}`);
+  saveClients();
+  closeModal();
+  showToast('Scores updated');
+}
+
+function openLetterForClient() {
+  if (!activeClientId) return;
+  closeModal();
+  showPanel('letters');
+  setTimeout(() => {
+    document.getElementById('lt_client').value = activeClientId;
+  }, 100);
+}
+
+// ============================================================
+// ALERTS
+// ============================================================
+function renderAllAlerts() {
+  const all = clients.map(c => {
+    const n = getNextActionDate(c);
+    if (!n) return null;
+    return { client: c, next: n, diff: daysDiff(n.date) };
+  }).filter(Boolean).sort((a,b) => a.diff - b.diff);
+
+  document.getElementById('allAlerts').innerHTML = all.length === 0
+    ? '<div class="card"><p class="text-dim">No alerts — add clients to get started</p></div>'
+    : all.map(({ client: c, next: n, diff }) => {
+        const type = diff < 0 ? 'urgent' : diff <= 5 ? 'urgent' : diff <= 14 ? 'upcoming' : 'info';
+        const icon = diff < 0 ? '🔴' : diff <= 5 ? '⚠️' : '📅';
+        const diffLabel = diff < 0 ? `${Math.abs(diff)}d OVERDUE` : diff === 0 ? 'TODAY' : `${diff} days`;
+        return `<div class="alert-item ${type}">
+          <div class="alert-icon">${icon}</div>
+          <div class="alert-text">
+            <strong>${c.first} ${c.last} — ${n.label}</strong>
+            <small>${formatDate(n.date)} · ${getRound(c)} · ${c.goal||'General'}</small>
+          </div>
+          <div class="alert-days" style="color:${diff<0?'var(--red)':diff<=5?'var(--amber)':'var(--blue)'}">${diffLabel}</div>
+        </div>`;
+      }).join('');
+}
+
+// ============================================================
+// LETTER GENERATOR
+// ============================================================
+function populateLetterDropdown() {
+  const sel = document.getElementById('lt_client');
+  sel.innerHTML = '<option value="">Choose client...</option>' +
+    clients.map(c => `<option value="${c.id}">${c.first} ${c.last}</option>`).join('');
+}
+
+function populateLetterClient() {}
+
+function selectLetterType(type, el) {
+  currentLetterType = type;
+  document.querySelectorAll('.round-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function generateLetter() {
+  const clientId = document.getElementById('lt_client').value;
+  const bureau = document.getElementById('lt_bureau').value;
+  const account = document.getElementById('lt_account').value;
+
+  const c = clients.find(x => x.id === clientId);
+  if (!c) { showToast('⚠️ Select a client first'); return; }
+
+  const dobFormatted = c.dob ? new Date(c.dob + 'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'DATE OF BIRTH';
+  const today_str = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  const bureauAddresses = {
+    'Equifax': 'Equifax Information Services LLC\nP.O. Box 740256\nAtlanta, GA 30374-0256',
+    'Experian': 'Experian\nP.O. Box 4500\nAllen, TX 75013',
+    'TransUnion': 'TransUnion LLC\nConsumer Dispute Center\nP.O. Box 2000\nChester, PA 19016'
+  };
+
+  let letter = '';
+  const header = `${c.first} ${c.last}\n${c.addr||'[ADDRESS]'}\n\n${today_str}\n\n${bureauAddresses[bureau]}\n\nRe: Formal Credit Report Dispute — ${c.first} ${c.last}\nSSN: xxx-xx-${c.ssn||'XXXX'} | DOB: ${dobFormatted}\n\nTo Whom It May Concern:\n\n`;
+
+  if (currentLetterType === 'R0') {
+    letter = header +
+`I am writing to request a formal investigation and correction of inaccurate personal identifying information currently appearing on my credit file maintained by ${bureau}. Pursuant to the Fair Credit Reporting Act (FCRA) §611 and §623, I am entitled to an accurate credit report and hereby dispute the following:
+
+DISPUTED PERSONAL INFORMATION:
+${account || '[List specific name variations, address variations, incorrect DOB, or employment info to dispute]'}
+
+Under the FCRA §611(a), you are required to conduct a reasonable reinvestigation of the disputed information and correct or delete any information that cannot be verified. I am requesting that all inaccurate personal information listed above be immediately removed from my credit file.
+
+Please complete this investigation and provide me with written results within 10 days of receipt of this letter, as this inaccurate personal information is affecting my ability to obtain credit.
+
+Sincerely,
+
+${c.first} ${c.last}
+SSN Last 4: ${c.ssn||'XXXX'}
+Date of Birth: ${dobFormatted}`;
+  }
+
+  else if (currentLetterType === 'R1') {
+    letter = header +
+`I am writing to formally dispute the following inaccurate information appearing on my ${bureau} credit report. Pursuant to the Fair Credit Reporting Act (FCRA) §611(a)(1), I am requesting a complete and thorough reinvestigation of each item listed below.
+
+DISPUTED ACCOUNT(S):
+${account || c.negatives || '[List specific accounts to dispute with basis for dispute]'}
+
+BASIS FOR DISPUTE:
+Each account listed above is being disputed on the following grounds:
+1. The information as reported is inaccurate and/or unverifiable
+2. The account may contain Metro 2 reporting errors
+3. Dates of first delinquency (DOFD) may be missing or inaccurate per FCRA §623(a)(5)
+4. The reported balance and/or status conflicts with information reported to other bureaus
+
+Under FCRA §611(a)(1), you must conduct a reasonable reinvestigation and, if you cannot verify the accuracy of the disputed information, you must promptly delete or correct the item.
+
+I request written notification of the results of your investigation within 30 days of receipt of this dispute.
+
+Sincerely,
+
+${c.first} ${c.last}
+SSN Last 4: ${c.ssn||'XXXX'}
+Date of Birth: ${dobFormatted}`;
+  }
+
+  else if (currentLetterType === 'R2-MOV') {
+    letter = header +
+`I previously submitted a dispute regarding the following account(s) on my ${bureau} credit report. Your bureau has responded that the information has been "verified." I am now formally invoking my rights under FCRA §611(a)(7) and requesting the Method of Verification (MOV) used to confirm the accuracy of this information.
+
+ACCOUNT(S) PREVIOUSLY DISPUTED:
+${account || '[Account name and number]'}
+
+Pursuant to FCRA §611(a)(7), I am entitled to know:
+1. The name, address, and telephone number of each person contacted during the reinvestigation
+2. The specific method used to verify the disputed information
+3. Documentation supporting the verification
+
+Please provide the complete method of verification within 15 days. If you are unable to provide this information, you are required to delete the disputed item(s) from my credit file immediately.
+
+Sincerely,
+
+${c.first} ${c.last}
+SSN Last 4: ${c.ssn||'XXXX'}
+Date of Birth: ${dobFormatted}`;
+  }
+
+  else if (currentLetterType === 'R3-PreLit') {
+    letter = header +
+`NOTICE OF INTENT TO FILE SUIT — PRE-LITIGATION DEMAND
+
+This letter serves as formal notice that I intend to pursue legal remedies available under the Fair Credit Reporting Act (FCRA) unless the following inaccurate information is immediately deleted from my ${bureau} credit file.
+
+ACCOUNT(S) AT ISSUE:
+${account || '[Account name and number]'}
+
+FCRA VIOLATIONS DOCUMENTED:
+1. Failure to conduct a reasonable reinvestigation per §611(a)(1)
+2. Continued reporting of disputed, unverified information
+3. Failure to provide adequate method of verification per §611(a)(7)
+4. Potential §623 furnisher violations
+
+Under the FCRA, I am entitled to actual damages, statutory damages up to $1,000 per violation, punitive damages, and attorney's fees and costs. I have documented all communications and disputes submitted to date.
+
+DEMAND: Delete the account(s) listed above within 15 days of receipt of this letter. Failure to comply will result in the filing of a civil lawsuit in the appropriate jurisdiction without further notice.
+
+This is my final attempt to resolve this matter without litigation.
+
+Sincerely,
+
+${c.first} ${c.last}
+SSN Last 4: ${c.ssn||'XXXX'}
+Date of Birth: ${dobFormatted}`;
+  }
+
+  document.getElementById('letterOutput').textContent = letter;
+  document.getElementById('letterOutputCard').style.display = 'block';
+  document.getElementById('letterOutputCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyLetter() {
+  const text = document.getElementById('letterOutput').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Letter copied to clipboard'));
+}
+
+function printLetter() {
+  const text = document.getElementById('letterOutput').textContent;
+  const w = window.open('','_blank');
+  w.document.write(`<html><head><title>NorthStar Letter</title>
+    <style>body{font-family:Georgia,serif;font-size:12pt;line-height:1.8;margin:1in;color:#000}
+    pre{white-space:pre-wrap;font-family:inherit}</style></head>
+    <body><pre>${text}</pre></body></html>`);
+  w.document.close();
+  w.print();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderDashboard();
+</script>
+</body>
+</html>
