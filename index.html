@@ -30,6 +30,67 @@
     overflow-x: hidden;
   }
 
+  /* LOGIN SCREEN */
+  #loginScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--navy);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #loginScreen.visible { display: flex; }
+  .login-box {
+    background: var(--navy-mid);
+    border: 1px solid var(--navy-border);
+    border-radius: 12px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  .login-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .login-logo span { color: var(--white); }
+  .login-sub {
+    font-size: 12px;
+    color: var(--white-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+  .login-box input {
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 4px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .login-box button {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .login-error {
+    color: var(--red);
+    font-size: 12px;
+    margin-top: 12px;
+    min-height: 18px;
+  }
+  #appWrapper { display: none; }
+  #appWrapper.visible { display: block; }
+
   /* HEADER */
   header {
     background: var(--navy-mid);
@@ -461,6 +522,20 @@
 </style>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="visible">
+  <div class="login-box">
+    <div class="login-logo">NorthStar <span>Advisors</span></div>
+    <div class="login-sub">Client Management System</div>
+    <input type="password" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPassword()"/>
+    <button class="btn btn-gold" onclick="checkPassword()">Enter</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP WRAPPER -->
+<div id="appWrapper">
 
 <header>
   <div class="logo">NorthStar <span>Advisors</span></div>
@@ -1294,9 +1369,42 @@ function printLetter() {
 }
 
 // ============================================================
+// PASSWORD PROTECTION
+// ============================================================
+const PASS = 'NorthStar2026';
+const SESSION_KEY = 'ns_auth';
+
+function checkPassword() {
+  const input = document.getElementById('pwInput').value;
+  if (input === PASS) {
+    sessionStorage.setItem(SESSION_KEY, 'true');
+    document.getElementById('loginScreen').classList.remove('visible');
+    document.getElementById('appWrapper').classList.add('visible');
+    renderDashboard();
+  } else {
+    document.getElementById('loginError').textContent = 'Incorrect password. Try again.';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+
+function initAuth() {
+  if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+    document.getElementById('loginScreen').classList.remove('visible');
+    document.getElementById('appWrapper').classList.add('visible');
+    renderDashboard();
+  } else {
+    document.getElementById('loginScreen').classList.add('visible');
+    setTimeout(() => document.getElementById('pwInput').focus(), 100);
+  }
+}
+
+// ============================================================
 // INIT
 // ============================================================
-renderDashboard();
+initAuth();
 </script>
+
+</div><!-- end appWrapper -->
 </body>
 </html>
