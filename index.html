@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>NorthStar Advisors — CRM</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --gold: #C9A84C;
@@ -805,17 +806,26 @@
 
 <script>
 // ============================================================
+// SUPABASE SETUP
+// ============================================================
+const SUPABASE_URL = 'https://dvkawwafjpmcvqyzejvg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_7Q2PdhGwxbeXT45fFxM62Q_26zgoj2Q';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
 // DATA STORE
 // ============================================================
-let clients = JSON.parse(localStorage.getItem('ns_clients') || '[]');
+let clients = [];
 let currentLetterType = 'R0';
 let activeClientId = null;
 
 // ============================================================
 // UTILITIES
 // ============================================================
-function saveClients() {
-  localStorage.setItem('ns_clients', JSON.stringify(clients));
+async function loadClients() {
+  const { data, error } = await sb.from('clients').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('Load error:', error); return; }
+  clients = (data || []).map(c => ({...c, history: c.history || []}));
 }
 
 function uid() {
@@ -858,10 +868,10 @@ function showPanel(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   document.querySelector(`[onclick="showPanel('${name}')"]`).classList.add('active');
-  if (name === 'dashboard') renderDashboard();
-  if (name === 'clients') renderClientRoster();
-  if (name === 'alerts') renderAllAlerts();
-  if (name === 'letters') populateLetterDropdown();
+  if (name === 'dashboard') loadClients().then(renderDashboard);
+  if (name === 'clients') loadClients().then(() => renderClientRoster());
+  if (name === 'alerts') loadClients().then(renderAllAlerts);
+  if (name === 'letters') { loadClients().then(populateLetterDropdown); }
 }
 
 // ============================================================
@@ -1027,10 +1037,16 @@ function filterClients() {
 // ============================================================
 // ADD CLIENT
 // ============================================================
-function addClient() {
+async function addClient() {
   const first = document.getElementById('in_first').value.trim();
   const last = document.getElementById('in_last').value.trim();
   if (!first || !last) { showToast('⚠️ Name is required'); return; }
+
+  const r0date = document.getElementById('in_r0date').value;
+  const r1date = document.getElementById('in_r1date').value;
+  const history = [`${today()} — Client added to NorthStar roster`];
+  if (r0date) history.push(`${r0date} — R0 personal info letter mailed`);
+  if (r1date) history.push(`${r1date} — R1 dispute letters mailed`);
 
   const client = {
     id: uid(),
@@ -1048,19 +1064,16 @@ function addClient() {
     negatives: document.getElementById('in_negatives').value,
     protect: document.getElementById('in_protect').value,
     notes: document.getElementById('in_notes').value,
-    r0date: document.getElementById('in_r0date').value,
-    r1date: document.getElementById('in_r1date').value,
+    r0date, r1date,
     r2date: '',
     r3date: '',
-    addedDate: today(),
-    history: [`${today()} — Client added to NorthStar roster`]
+    addeddate: today(),
+    history
   };
 
-  if (client.r0date) client.history.push(`${client.r0date} — R0 personal info letter mailed`);
-  if (client.r1date) client.history.push(`${client.r1date} — R1 dispute letters mailed`);
+  const { error } = await sb.from('clients').insert([client]);
+  if (error) { showToast('❌ Error saving client: ' + error.message); console.error(error); return; }
 
-  clients.push(client);
-  saveClients();
   showToast(`✅ ${first} ${last} added to roster`);
   clearIntake();
   showPanel('clients');
@@ -1076,10 +1089,11 @@ function clearIntake() {
   document.getElementById('in_payment').value = 'PAID';
 }
 
-function deleteClient(id) {
+async function deleteClient(id) {
   if (!confirm('Delete this client? This cannot be undone.')) return;
+  const { error } = await sb.from('clients').delete().eq('id', id);
+  if (error) { showToast('❌ Error deleting client'); return; }
   clients = clients.filter(c => c.id !== id);
-  saveClients();
   renderClientRoster(document.getElementById('clientSearch').value);
   showToast('Client removed');
 }
@@ -1152,32 +1166,36 @@ function closeModal() {
   activeClientId = null;
 }
 
-function updateRound(id, field) {
+async function updateRound(id, field) {
   const c = clients.find(x => x.id === id);
   if (!c) return;
   const d = prompt(`Enter mail date for ${field.replace('date','').toUpperCase()} (YYYY-MM-DD):`, today());
   if (!d) return;
-  c[field] = d;
   const label = field.replace('date','').toUpperCase();
-  c.history = c.history || [];
-  c.history.push(`${d} — ${label} dispute letters mailed`);
-  saveClients();
+  const history = [...(c.history||[]), `${d} — ${label} dispute letters mailed`];
+  const { error } = await sb.from('clients').update({ [field]: d, history }).eq('id', id);
+  if (error) { showToast('❌ Error updating round'); return; }
+  c[field] = d;
+  c.history = history;
   closeModal();
   showToast(`${label} date saved`);
 }
 
-function updateScores(id) {
+async function updateScores(id) {
   const c = clients.find(x => x.id === id);
   if (!c) return;
   const eq = prompt('New Equifax score:', c.eq);
   const ex = prompt('New Experian score:', c.ex);
   const tu = prompt('New TransUnion score:', c.tu);
-  if (eq) c.eq = eq;
-  if (ex) c.ex = ex;
-  if (tu) c.tu = tu;
-  c.history = c.history || [];
-  c.history.push(`${today()} — Scores updated: EQ:${c.eq} EX:${c.ex} TU:${c.tu}`);
-  saveClients();
+  const updates = {};
+  if (eq) updates.eq = eq;
+  if (ex) updates.ex = ex;
+  if (tu) updates.tu = tu;
+  const history = [...(c.history||[]), `${today()} — Scores updated: EQ:${eq||c.eq} EX:${ex||c.ex} TU:${tu||c.tu}`];
+  updates.history = history;
+  const { error } = await sb.from('clients').update(updates).eq('id', id);
+  if (error) { showToast('❌ Error updating scores'); return; }
+  Object.assign(c, updates);
   closeModal();
   showToast('Scores updated');
 }
@@ -1380,7 +1398,7 @@ function checkPassword() {
     sessionStorage.setItem(SESSION_KEY, 'true');
     document.getElementById('loginScreen').classList.remove('visible');
     document.getElementById('appWrapper').classList.add('visible');
-    renderDashboard();
+    loadClients().then(renderDashboard);
   } else {
     document.getElementById('loginError').textContent = 'Incorrect password. Try again.';
     document.getElementById('pwInput').value = '';
@@ -1392,7 +1410,7 @@ function initAuth() {
   if (sessionStorage.getItem(SESSION_KEY) === 'true') {
     document.getElementById('loginScreen').classList.remove('visible');
     document.getElementById('appWrapper').classList.add('visible');
-    renderDashboard();
+    loadClients().then(renderDashboard);
   } else {
     document.getElementById('loginScreen').classList.add('visible');
     setTimeout(() => document.getElementById('pwInput').focus(), 100);
